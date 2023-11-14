@@ -1,0 +1,47 @@
+/*************************************************************
+ * @author : th.kim
+ * @date : 2023-10-17
+ * @group : 
+ * @group-content :
+ * @description : 
+==============================================================
+ * Ver Date Author Modification
+ 1.0    Initial Version
+**************************************************************/
+
+.form {
+    margin: 20px auto;
+    border: solid 1px lightgray;
+    border-radius: 10px;
+    box-shadow: 0 0 10px lightgray;
+    padding: 12px;
+}
+
+h1 {
+    font-weight: bold;
+    /* padding: 10px 0 5px 0; */
+}
+
+.search-item {
+    transition: all 0.1s linear;
+}
+
+.search-item:hover {
+    cursor: pointer;
+    background-color: #6667AB;
+    color: white;
+    border-radius: 5px;
+}
+
+p {
+    font-weight: 500;
+}
+
+th, td { padding: 8px !important; } 
+
+/* .file-input {
+    text-align: center;
+    margin: auto;
+    line-height: 0;
+    padding: 10px;
+} */

@@ -1,0 +1,308 @@
+<!------------------------------------------------------------
+ * @author : th.kim
+ * @date : 2023-10-17
+ * @group : 
+ * @group-content :
+ * @description : 
+==============================================================
+ * Ver Date Author Modification
+ 1.0    Initial Version
+-------------------------------------------------------------->
+<!-- St Create Custom Fields -->
+
+<template>
+    <!-- <div class="slds-grid slds-wrap slds-size_1-of-3 form">
+        <h1 class="slds-text-heading_medium slds-text-align_center slds-size_1-of-1">Create Custom Objects</h1>
+        <p class="slds-text-align_center slds-size_1-of-1">Version : 0.1</p>
+        <lightning-input type="file" data-type="obj" onchange={onFileUpload} class="slds-size_1-of-1 file-input"></lightning-input>
+    </div> -->
+    <div class="slds-grid slds-wrap slds-size_1-of-1 form" style="position: relative;">
+        <h1 class="slds-size_1-of-1 slds-text-heading_medium slds-p-around_small">Create Custom Fields</h1>
+        <div class="slds-grid slds-wrap slds-size_1-of-6 slds-p-around_small">
+            <div class="slds-size_1-of-1">
+                <div onkeyup={onSearchKeyup}>
+                    <lightning-input name="enter-search" label="Select Objects" type="search"
+                        value={searchValue}></lightning-input>
+                </div>
+                <template for:each={searchList} for:item="item" for:index="index">
+                    <div key={item} class="slds-p-around_xx-small slds-text-heading_small search-item" data-value={item}
+                        onclick={onSearchClick}>{item}</div>
+                </template>
+            </div>
+            <div class="slds-size_1-of-1">
+                <label style="color: #444444;">Select Profile</label>
+                <button class="slds-button slds-button_neutral slds-size_1-of-1" aria-label="Select Profile" onclick={onProfileClick}>Select Profile</button>
+                <!-- <lightning-input label="Profile" value={profileValue} placeholder="Select Profiles"
+                    onkeyup={onProfileKeyup} onclick={onProfileClick}>
+                </lightning-input> -->
+            </div>
+            <!-- <div class="slds-grid slds-wrap slds-size_1-of-1">
+                <div class="slds-size_1-of-1">test</div>
+                <div class="slds-size_1-of-1">test</div>
+            </div> -->
+            <lightning-input type="file" data-type="field" onchange={onFileUpload} class="slds-size_1-of-1 slds-p-bottom_medium file-input"></lightning-input>
+            <div class="slds-grid slds-size_1-of-1">
+                <button class="slds-button slds-button_neutral slds-size_1-of-2" aria-label="Upload" onclick={onUploadClick}>Upload</button>
+                <template lwc:if={isError}>
+                    <button class="slds-button slds-button_neutral slds-size_1-of-2" aria-label="Retry Failed" onclick={onRetryFailedClick}>Retry Failed</button>
+                </template>
+            </div>
+        </div>
+        <div class="slds-grid slds-size_2-of-6">
+            <lightning-dual-listbox
+                class="slds-size_1-of-1"
+                name="profiles"
+                source-label="Profiles"
+                selected-label="Selected"
+                options={profileList}
+                onchange={handleProfileChange}>
+            </lightning-dual-listbox>
+        </div>
+        <template if:true={isUpload}>
+            <div class="slds-grid slds-wrap slds-size_1-of-1 slds-p-horizontal_small slds-border_top data-table">
+                <template lwc:if={isLoading}>
+                    <lightning-progress-bar class="slds-size_1-of-1" value={progressValue} size="large"></lightning-progress-bar>
+                </template>
+                <button class="slds-button slds-button_neutral slds-m-top_x-small" aria-label="Copy" onclick={onCloseModalClick}>Copy</button>
+                <h2 class="slds-size_1-of-1 slds-m-top_medium">Status Total : {totalCount} Successed : {successCount} Failed : {failedCount}</h2>
+                <table class="slds-table slds-table_bordered slds-table_striped">
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <!-- <template lwc:if={isReturn}>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Object Type">Object Type</div>
+                                </th>
+                            </template> -->
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Field Name">Field Name</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Label">Field Label</div>
+                            </th>
+                            <th class="" scope="col">
+                                <div class="slds-truncate" title="Field Type">Field Type</div>
+                            </th>
+                            <template lwc:if={isReturn}>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Status">Status</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Message">Message</div>
+                                </th>
+                            </template>
+                            <template if:false={isReturn}>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Length">Length</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="VisibleLines">VisibleLines</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Number Length">Number Length</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Decimal Places">Decimal Places</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Display Format">Display Format</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Starting Number">Starting Number</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="PickList Values">PickList Values</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Relationship Label">Relationship Label</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Relationship Name">Relationship Name</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Reference To">Reference To</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="DefaultValue">DefaultValue</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Readable">Readable</div>
+                                </th>
+                                <th class="" scope="col">
+                                    <div class="slds-truncate" title="Editable">Editable</div>
+                                </th>
+                            </template>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template if:false={isReturn}>
+                            <template for:each={fieldList} for:item="field" for:index="idx">
+                                <tr key={fieldList.apiName} class="slds-hint-parent">
+                                    <th class="" scope="col">
+                                        <div class="slds-truncate" title={field.apiName}>
+                                            <lightning-input type="text" data-col="apiName" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.apiName}></lightning-input>
+                                        </div>
+                                    </th>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.label}>
+                                            <lightning-input type="text" data-col="label" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.label}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="" title={field.type}>
+                                            <lightning-combobox options={typeOptions} data-col="type" data-row={idx} onchange={onComboboxChange} variant="label-hidden" value={field.type}></lightning-combobox>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.length}>
+                                            <lightning-input type="number" data-col="length" data-row={idx} data-field={field} onchange={handleNumberChange} variant="label-hidden" value={field.length}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.visibleLines}>
+                                            <lightning-input type="number" data-col="visibleLines" data-row={idx} onchange={handleNumberChange} variant="label-hidden" value={field.visibleLines}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.precision}>
+                                            <lightning-input type="number" data-col="precision" data-row={idx} onchange={handleNumberChange} variant="label-hidden" value={field.precision}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.scale}>
+                                            <lightning-input type="number" data-col="scale" data-row={idx} onchange={handleNumberChange} variant="label-hidden" value={field.scale}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.displayFormat}>
+                                            <lightning-input type="text" data-col="displayFormat" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.displayFormat}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.startingNumber}>
+                                            <lightning-input type="number" data-col="startingNumber" data-row={idx} onchange={handleNumberChange} variant="label-hidden" value={field.startingNumber}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.pickListValues}>
+                                            <lightning-input type="text" data-col="pickListValues" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.pickListValues}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.relationshipLabel}>
+                                            <lightning-input type="text" data-col="relationshipLabel" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.relationshipLabel}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.relationshipName}>
+                                            <lightning-input type="text" data-col="relationshipName" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.relationshipName}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.referenceTo}>
+                                            <lightning-input type="text" data-col="referenceTo" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.referenceTo}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="slds-truncate" title={field.defaultValue}>
+                                            <lightning-input type="text" data-col="defaultValue" data-row={idx} onchange={handleTextChange} variant="label-hidden" value={field.defaultValue}></lightning-input>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="" title={field.readable}>
+                                            <lightning-combobox options={tfOptions} data-col="readable" data-row={idx} onchange={onComboboxChange} variant="label-hidden" value={field.readable}></lightning-combobox>
+                                        </div>
+                                    </td>
+                                    <td class="" scope="col">
+                                        <div class="" title={field.editable}>
+                                            <lightning-combobox options={tfOptions} data-col="editable" data-row={idx} onchange={onComboboxChange} variant="label-hidden" value={field.editable}></lightning-combobox>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                        <template if:true={isReturn}>
+                            <template for:each={returnList} for:item="item" for:index="idx">
+                                <tr key={item.fullName}>
+                                    <!-- <th class="" scope="col">
+                                        <div class="slds-truncate" title={item.type}>{item.type}</div>
+                                    </th> -->
+                                    <template lwc:if={item.isField}>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.field.apiName}>{item.field.apiName}</div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.field.label}>{item.field.label}</div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.field.type}>{item.field.type}</div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.status}>{item.status}</div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.message}>{item.message}</div>
+                                        </td>
+                                    </template>
+                                    <template lwc:elseif={item.isProfile}>
+                                        <th class="" scope="col">
+                                            <div class="slds-truncate" title={item.fullName}>{item.fullName}</div>
+                                        </th>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title=""></div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title=""></div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.status}>{item.status}</div>
+                                        </td>
+                                        <td class="" scope="col">
+                                            <div class="slds-truncate" title={item.message}>{item.message}</div>
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+        <!-- 로딩 스피너 -->
+        <template if:true={isLoading}>
+            <div class="spinner" style="border-radius: 10px;">
+                <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+            </div>
+        </template>
+    </div>
+
+    <!-- 프로필 모달 창 -->
+    <!-- <template if:true={isProfileModal}> -->
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open modal" style="display: none;">
+            <div class="slds-modal__container" style="font-weight: bold;">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={onCloseModalClick}>
+                    <lightning-icon icon-name="utility:close"
+                        alternative-text="close"
+                        variant="inverse"
+                        size="small">
+                    </lightning-icon>
+                    <div class="slds-assistive-text">Close</div>
+                </button>
+                <div class="slds-modal__header">
+                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Select Profiles</h1>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium slds-text-align_center" id="modal-content-id-1">
+                    <template for:each={profileList} for:item="profile" for:index="idx">
+                        <div key={profile.Id} class="slds-grid slds-size_1-of-1">
+                            <lightning-input type="checkbox" name="profile-checkbox" data-name={profile.Name} onclick={onProfileChkClick}></lightning-input>
+                            <div>{profile.Name}</div>
+                        </div>
+                    </template>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" aria-label="Cancel and close" onclick={onCloseModalClick}>완료</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open modal" role="presentation" style="display: none;"></div>
+    <!-- </template> -->
+</template>
