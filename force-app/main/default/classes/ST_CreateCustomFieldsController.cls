@@ -3,7 +3,7 @@
  * @date : 2023-10-17
  * @group :
  * @group-content :
- * @description :
+ * @description : Custom Metadata Upsert Controller
 ==============================================================
  * Ver          Date             Author         Modification
    1.0          2023-10-17       th.kim         Initial Version
@@ -107,7 +107,6 @@ public with sharing class ST_CreateCustomFieldsController {
      * @return JSON 타입 Save 결과
      */
     @AuraEnabled
-//    @Future
     public static String createCustomFields(String objName, String data, List<String> profileNames) {
         try {
             List<FieldData> fieldDataList = (List<FieldData>) JSON.deserialize(data, List<FieldData>.class);
@@ -116,139 +115,8 @@ public with sharing class ST_CreateCustomFieldsController {
             for(SaveResult saveResult : fieldResultList) {
                 saveResultList.add(saveResult);
             }
-            /*List<SaveResult> profileResultList = */upsertProfileMetadataService(objName, profileNames, data);
-            /*for(SaveResult saveResult : profileResultList) {
-                saveResultList.add(saveResult);
-            }*/
+            upsertProfileMetadataService(objName, profileNames, data);
             return JSON.serialize(saveResultList);
-//
-//            List<MetadataService.CustomField> customFieldList = new List<MetadataService.CustomField>();
-//            List<MetadataService.ProfileFieldLevelSecurity> fieldSecList = new List<MetadataService.ProfileFieldLevelSecurity>();
-//            Map<String, FieldData> fieldNameMap = new Map<String, FieldData>();
-//            for(FieldData field : fieldDataList) {
-//                System.debug('field :: ' + field);
-//                MetadataService.CustomField customField = new MetadataService.CustomField();
-//                customField.fullName = objName + '.' + field.apiName;
-//                customField.label = field.label;
-//                customField.type_x = field.type;
-//
-//                if(field.type == 'Picklist') {
-//                    List<MetadataService.StandardValue> values = new List<MetadataService.StandardValue>();
-//                    for(String str : field.pickListValues) {
-//                        MetadataService.StandardValue customValue = new MetadataService.StandardValue();
-//                        customValue.fullName = str;
-//                        customValue.default_x = false;
-//                        customValue.description = '';
-//                        customValue.isActive = true;
-//                        customValue.label = str;
-//                        values.add(customValue);
-//                    }
-//
-//                    MetadataService.ValueSet picklistValueSet = new MetadataService.ValueSet();
-//                    MetadataService.ValueSetValuesDefinition valueDefinition = new MetadataService.ValueSetValuesDefinition();
-//                    valueDefinition.value = values;
-//                    valueDefinition.sorted = false;
-//                    picklistValueSet.valueSetDefinition = valueDefinition;
-//
-//                    customField.valueSet = picklistValueSet;
-//                } else if(field.type == 'Lookup') {
-//                    customField.relationshipLabel = field.relationshipLabel;
-//                    customField.relationshipName = field.relationshipName;
-//                    customField.referenceTo = field.referenceTo;
-//                } else if(field.type == 'Text'){
-//                    customField.length = field.length;
-//                } else if (field.type == 'LongTextArea') {
-//                    customField.length = field.length;
-//                    customField.visibleLines = field.visibleLines;
-//                } else if (field.type == 'Number') {
-//                    customField.precision = field.precision;
-//                    customField.scale = field.scale;
-//                } else if (field.type == 'formula') {
-//                    // customField.formula = 'TEXT(Another_Field__c) + " is great!"'; // 공식 표현식
-//                }
-//                customFieldList.add(customField);
-//
-//                // Set field-level-security
-//                MetadataService.ProfileFieldLevelSecurity fieldSec = new MetadataService.ProfileFieldLevelSecurity();
-//                fieldSec.field = objName + '.' + field.apiName;
-//                if (field.readable != null) {
-//                    fieldSec.readable = field.readable;
-//                } else {
-//                    fieldSec.readable = false;
-//                }
-//                if (field.editable != null) {
-//                    if (field.editable) {
-//                        fieldSec.editable = true;
-//                        fieldSec.readable = true;
-//                    } else {
-//                        fieldSec.editable = false;
-//                    }
-//                } else {
-//                    fieldSec.editable = false;
-//                }
-//                fieldSecList.add(fieldSec);
-//                fieldNameMap.put(customField.fullName, field);
-//            }
-//            System.debug('customFieldList :: ' + customFieldList);
-//            System.debug('fieldSecList :: ' + fieldSecList);
-//
-//            // Create Custom Fields
-//            MetadataService.MetadataPort fieldService = metadataService();
-//            List<MetadataService.SaveResult> results = fieldService.createMetadata(customFieldList);
-//
-//            List<SaveResult> saveResultList = new List<SaveResult>();
-//            for(MetadataService.SaveResult result : results) {
-//                System.debug('field result :: ' + result);
-//                SaveResult saveResult = new SaveResult();
-//                saveResult.field = fieldNameMap.get(result.fullName);
-//                saveResult.type = 'field';
-//                saveResult.fullName = result.fullName;
-//                if(result.errors != null) {
-//                    System.debug('field result :: ' + result.errors);
-//                    saveResult.error = true;
-//                    saveResult.success = false;
-//                    saveResult.status = 'error';
-//                    saveResult.message = result.errors[0].message;
-//                } else {
-//                    saveResult.error = false;
-//                    saveResult.success = true;
-//                    saveResult.status = 'success';
-//                    saveResult.message = 'success';
-//                }
-//                saveResultList.add(saveResult);
-//            }
-//            System.debug('saveResultList :: ' + saveResultList);
-
-            // Upsert Profile field-level-security
-           /* MetadataService.MetadataPort profileService = metadataService();
-            List<MetadataService.ProfileTabVisibility> tvs = new List<MetadataService.ProfileTabVisibility>();
-            for(String profileName : profileNames) {
-                String fullName = queryToolingApi(profileName);
-                MetadataService.Profile profile = (MetadataService.Profile) profileService.readMetadata('Profile',new List<String>{fullName}).getRecords()[0];
-                profile.tabVisibilities = tvs;
-                profile.fieldPermissions = fieldSecList;
-                List<MetadataService.UpsertResult> upsertResults = profileService.upsertMetadata(new List<MetadataService.Metadata>{profile});
-                System.debug(upsertResults);
-                for(MetadataService.UpsertResult result : upsertResults) {
-                    System.debug('profile result :: ' + result);
-                    SaveResult saveResultObj = new SaveResult();
-                    saveResultObj.type = 'profile';
-                    saveResultObj.fullName = result.fullName;
-                    if(result.errors != null) {
-                        System.debug('profile err :: ' + result.errors);
-                        saveResultObj.error = true;
-                        saveResultObj.success = false;
-                        saveResultObj.status = 'error';
-                        saveResultObj.message = result.errors[0].message;
-                    } else {
-                        saveResultObj.error = false;
-                        saveResultObj.success = true;
-                        saveResultObj.status = 'success';
-                        saveResultObj.message = 'success';
-                    }
-                    saveResultList.add(saveResultObj);
-                }
-            }*/
         } catch (Exception e) {
             System.debug('err :: ' + e.getMessage() + ' || ' + e.getLineNumber());
             throw new AuraHandledException(e.getMessage());
@@ -349,7 +217,7 @@ public with sharing class ST_CreateCustomFieldsController {
      * @param data : JSON 형식 필드 데이터
      */
     @Future(Callout=true)
-    private static void /*List<SaveResult>*/ upsertProfileMetadataService(String objName, List<String> profileNames, String data/*, List<FieldData> fieldDataList*/) {
+    private static void upsertProfileMetadataService(String objName, List<String> profileNames, String data) {
         List<FieldData> fieldDataList = (List<FieldData>) JSON.deserialize(data, List<FieldData>.class);
         // Set field-level-security
         List<MetadataService.ProfileFieldLevelSecurity> fieldSecList = new List<MetadataService.ProfileFieldLevelSecurity>();
@@ -376,7 +244,6 @@ public with sharing class ST_CreateCustomFieldsController {
 
         MetadataService.MetadataPort profileService = metadataService();
         List<MetadataService.ProfileTabVisibility> tvs = new List<MetadataService.ProfileTabVisibility>();
-//        List<SaveResult> saveResultList = new List<SaveResult>();
         for(String profileName : profileNames) {
             String fullName = queryToolingApi(profileName);
             MetadataService.Profile profile = (MetadataService.Profile) profileService.readMetadata('Profile',new List<String>{fullName}).getRecords()[0];
@@ -384,27 +251,7 @@ public with sharing class ST_CreateCustomFieldsController {
             profile.fieldPermissions = fieldSecList;
             List<MetadataService.UpsertResult> upsertResults = profileService.upsertMetadata(new List<MetadataService.Metadata>{profile});
             System.debug('upsertResults :: ' + upsertResults);
-//            for(MetadataService.UpsertResult result : upsertResults) {
-//                System.debug('profile result :: ' + result);
-//                SaveResult saveResultObj = new SaveResult();
-//                saveResultObj.type = 'profile';
-//                saveResultObj.fullName = result.fullName;
-//                if(result.errors != null) {
-//                    System.debug('profile err :: ' + result.errors);
-//                    saveResultObj.error = true;
-//                    saveResultObj.success = false;
-//                    saveResultObj.status = 'error';
-//                    saveResultObj.message = result.errors[0].message;
-//                } else {
-//                    saveResultObj.error = false;
-//                    saveResultObj.success = true;
-//                    saveResultObj.status = 'success';
-//                    saveResultObj.message = 'success';
-//                }
-//                saveResultList.add(saveResultObj);
-//            }
         }
-//        return saveResultList;
     }
 
     // 메타 데이터 API 커스텀 필드 삭제 메서드
