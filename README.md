@@ -1,6 +1,6 @@
-# Salesforce DX Project: Next Steps
+# 세일즈포스 대량 Custom Field Metadata 생성, 업데이트 삭제
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+Metadata API를 이용한 세일즈포스 대량 Custom Field Metadata 생성, 업데이트 삭제
 
 ## How Do You Plan to Deploy Your Changes?
 
