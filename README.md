@@ -1,4 +1,4 @@
-# 세일즈포스 대량 Custom Field Metadata 생성, 업데이트 삭제
+# Salesforce 대량 Custom Field 생성, 업데이트 삭제
 
 Metadata API를 이용한 세일즈포스 대량 Custom Field Metadata 생성, 업데이트 삭제
 
