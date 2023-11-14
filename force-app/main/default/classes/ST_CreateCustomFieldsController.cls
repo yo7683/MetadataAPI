@@ -141,44 +141,89 @@ public with sharing class ST_CreateCustomFieldsController {
             customField.type_x = field.type;
             if(String.isNotBlank(field.defaultValue)) customField.defaultValue = field.defaultValue;
 
-            if(field.type == 'Picklist') {
-                List<MetadataService.StandardValue> values = new List<MetadataService.StandardValue>();
-                for(String str : field.pickListValues) {
-                    MetadataService.StandardValue customValue = new MetadataService.StandardValue();
-                    customValue.fullName = str;
-                    customValue.default_x = false;
-                    customValue.description = '';
-                    customValue.isActive = true;
-                    customValue.label = str;
-                    values.add(customValue);
+            switch on field.type {
+                when 'Picklist' {
+                    List<MetadataService.StandardValue> values = new List<MetadataService.StandardValue>();
+                    for(String str : field.pickListValues) {
+                        MetadataService.StandardValue customValue = new MetadataService.StandardValue();
+                        customValue.fullName = str;
+                        customValue.default_x = false;
+                        customValue.description = '';
+                        customValue.isActive = true;
+                        customValue.label = str;
+                        values.add(customValue);
+                    }
+                    MetadataService.ValueSet picklistValueSet = new MetadataService.ValueSet();
+                    MetadataService.ValueSetValuesDefinition valueDefinition = new MetadataService.ValueSetValuesDefinition();
+                    valueDefinition.value = values;
+                    valueDefinition.sorted = false;
+                    picklistValueSet.valueSetDefinition = valueDefinition;
+                    customField.valueSet = picklistValueSet;
                 }
-
-                MetadataService.ValueSet picklistValueSet = new MetadataService.ValueSet();
-                MetadataService.ValueSetValuesDefinition valueDefinition = new MetadataService.ValueSetValuesDefinition();
-                valueDefinition.value = values;
-                valueDefinition.sorted = false;
-                picklistValueSet.valueSetDefinition = valueDefinition;
-
-                customField.valueSet = picklistValueSet;
-            } else if(field.type == 'Lookup') {
-                customField.relationshipLabel = field.relationshipLabel;
-                customField.relationshipName = field.relationshipName;
-                customField.referenceTo = field.referenceTo;
-            } else if (field.type == 'Url') {
-                customField.length = 255;
-            } else if(field.type == 'Text'){
-                customField.length = field.length;
-            } else if (field.type == 'LongTextArea' || field.type == 'Html') {
-                customField.length = field.length;
-                customField.visibleLines = field.visibleLines;
-            } else if (field.type == 'Number' || field.type == 'Percent' || field.type == 'Currency') {
-                customField.precision = field.precision;
-                customField.scale = field.scale;
-            } else if (field.type == 'formula') {
-                // customField.formula = 'TEXT(Another_Field__c) + " is great!"'; // 공식 표현식
+                when 'Lookup' {
+                    customField.relationshipLabel = field.relationshipLabel;
+                    customField.relationshipName = field.relationshipName;
+                    customField.referenceTo = field.referenceTo;
+                }
+                when 'Url' {
+                    customField.length = 255;
+                }
+                when 'Text' {
+                    customField.length = field.length;
+                }
+                when 'LongTextArea', 'Html'{
+                    customField.length = field.length;
+                    customField.visibleLines = field.visibleLines;
+                }
+                when 'Number', 'Percent', 'Currency' {
+                    customField.precision = field.precision;
+                    customField.scale = field.scale;
+                }
+                when 'formula' {
+                    // customField.formula = 'TEXT(Another_Field__c) + " is great!"'; // 공식 표현식
+                }
             }
             customFieldList.add(customField);
             fieldNameMap.put(customField.fullName, field);
+
+//            if(field.type == 'Picklist') {
+//                List<MetadataService.StandardValue> values = new List<MetadataService.StandardValue>();
+//                for(String str : field.pickListValues) {
+//                    MetadataService.StandardValue customValue = new MetadataService.StandardValue();
+//                    customValue.fullName = str;
+//                    customValue.default_x = false;
+//                    customValue.description = '';
+//                    customValue.isActive = true;
+//                    customValue.label = str;
+//                    values.add(customValue);
+//                }
+//
+//                MetadataService.ValueSet picklistValueSet = new MetadataService.ValueSet();
+//                MetadataService.ValueSetValuesDefinition valueDefinition = new MetadataService.ValueSetValuesDefinition();
+//                valueDefinition.value = values;
+//                valueDefinition.sorted = false;
+//                picklistValueSet.valueSetDefinition = valueDefinition;
+//
+//                customField.valueSet = picklistValueSet;
+//            } else if(field.type == 'Lookup') {
+//                customField.relationshipLabel = field.relationshipLabel;
+//                customField.relationshipName = field.relationshipName;
+//                customField.referenceTo = field.referenceTo;
+//            } else if (field.type == 'Url') {
+//                customField.length = 255;
+//            } else if(field.type == 'Text'){
+//                customField.length = field.length;
+//            } else if (field.type == 'LongTextArea' || field.type == 'Html') {
+//                customField.length = field.length;
+//                customField.visibleLines = field.visibleLines;
+//            } else if (field.type == 'Number' || field.type == 'Percent' || field.type == 'Currency') {
+//                customField.precision = field.precision;
+//                customField.scale = field.scale;
+//            } else if (field.type == 'formula') {
+//                // customField.formula = 'TEXT(Another_Field__c) + " is great!"'; // 공식 표현식
+//            }
+//            customFieldList.add(customField);
+//            fieldNameMap.put(customField.fullName, field);
         }
         System.debug('customFieldList :: ' + customFieldList);
 
